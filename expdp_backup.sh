@@ -199,8 +199,8 @@ if [ $STATUS  == "1" ]; then
                 DUMPFILE=$HOST.$SCHEMAS-$(date '+%Y%m%d').dmp
                 DUMPLOG=$HOST.$SCHEMAS-$(date '+%Y%m%d').log
                 STIME=$(date '+%D %T')
-                print_msg "Executing $ORACLE_HOME/bin/$BKP_TYPE $USR/***** directory=$DIR dumpfile=$DUMPFILE schemas=$SCHEMAS logfile=$DUMPLOG full=y"
-                $ORACLE_HOME/bin/$BKP_TYPE $USR/$PASSWD directory=$DIR dumpfile=$DUMPFILE schemas=$SCHEMAS logfile=$DUMPLOG full=y
+                print_msg "Executing $ORACLE_HOME/bin/$BKP_TYPE $USR/***** directory=$DIR dumpfile=$DUMPFILE schemas=$SCHEMAS logfile=$DUMPLOG"
+                $ORACLE_HOME/bin/$BKP_TYPE $USR/$PASSWD directory=$DIR dumpfile=$DUMPFILE schemas=$SCHEMAS logfile=$DUMPLOG
                 #ETIME=$(date '+%D %T')
                 if [ $? -ne 0 ]; then
                         print_msg "Error while executing $ORACLE_HOME/bin/$BKP_TYPE"
