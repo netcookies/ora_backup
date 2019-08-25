@@ -63,6 +63,24 @@ while getopts f:u:p: next; do
         esac
 done
 
+if [ "$MAIL_FROM" == "" ]; then
+    print_msg "No mail sender provided."
+    Usage
+    exit
+fi
+
+if [ "$SMTP_USER" == "" ]; then
+    print_msg "No smtp user provided."
+    Usage
+    exit
+fi
+
+if [ "$SMTP_PASSWORD" == "" ]; then
+    print_msg "No smtp password provided."
+    Usage
+    exit
+fi
+
 setMailrc
 setMailSsl
 
