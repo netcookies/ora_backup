@@ -212,8 +212,12 @@ if [ $STATUS  == "1" ]; then
                         print_msg "End to execute $ORACLE_HOME/bin/$BKP_TYPE"
                         print_msg "$(ls -l $BKPDIR/$HOST.$SCHEMAS-$(date '+%Y%m%d').dmp) "
                         print_msg "Successfully backup $SCHEMAS"
+                        print_msg "Start compressing backup and clean up files before 30days... "
+                        tar czf $BKPDIR/$HOST.$SCHEMAS-$(date '+%Y%m%d').tar.gz $BKPDIR/$HOST.$SCHEMAS-$(date '+%Y%m%d').*
+                        rm -rf $BKPDIR/$HOST.$SCHEMAS-$(date '+%Y%m%d').*
+                        cd $BKPDIR && find . -mtime +30 -type f -name "$HOST.$SCHEMAS-*" -exec rm -rf {} \;
                         echo "The below is last dump backup file (Time from $STIME to $ETIME) ..."  >$MAILFILE
-                        ls -l $BKPDIR/$HOST.$SCHEMAS-`date +'%Y%m%d'`.dmp >> $MAILFILE
+                        ls -l $BKPDIR/$HOST.$SCHEMAS-`date +'%Y%m%d'`.tar.gz >> $MAILFILE
                         echo "" >>$MAILFILE
                         #echo "All backup contents" >>$MAILFILE
                         #ls -l $BKPDIR/$SID/ >>$MAILFILE
