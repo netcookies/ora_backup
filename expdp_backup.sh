@@ -179,15 +179,15 @@ fi
 
 #STATUS=$(cat $CFGFILE |grep ^$SID |grep -v ^#|wc -l)
 # check schemas instead of sid
-STATUS=$(cat $CFGFILE|grep ^$SCHEMAS|grep -v ^#|awk '{print $6}'|wc -l)
+STATUS=$(cat $CFGFILE|grep $SCHEMAS|grep -v ^#|awk '{print $6}'|wc -l)
 if [ $STATUS  == "1" ]; then
-        SID=$(cat $CFGFILE|grep ^$SCHEMAS|grep -v ^#|awk '{print $1}')
-        ORACLE_HOME=$(cat $CFGFILE|grep ^$SCHEMAS|grep -v ^#|awk '{print $2}')
-        USR=$(cat $CFGFILE|grep ^$SCHEMAS|grep -v ^#|awk '{print $3}')
-        PASSWD=$(cat $CFGFILE|grep ^$SCHEMAS|grep -v ^#|awk '{print $4}')
-        DIR=$(cat $CFGFILE|grep ^$SCHEMAS|grep -v ^#|awk '{print $5}')
-        SCHEMAS=$(cat $CFGFILE|grep ^$SCHEMAS|grep -v ^#|awk '{print $6}')
-        MAIL_RCV=$(cat $CFGFILE|grep ^$SCHEMAS|grep -v ^#|awk '{print $7}')
+        SID=$(cat $CFGFILE|grep $SCHEMAS|grep -v ^#|awk '{print $1}')
+        ORACLE_HOME=$(cat $CFGFILE|grep $SCHEMAS|grep -v ^#|awk '{print $2}')
+        USR=$(cat $CFGFILE|grep $SCHEMAS|grep -v ^#|awk '{print $3}')
+        PASSWD=$(cat $CFGFILE|grep $SCHEMAS|grep -v ^#|awk '{print $4}')
+        DIR=$(cat $CFGFILE|grep $SCHEMAS|grep -v ^#|awk '{print $5}')
+        SCHEMAS=$(cat $CFGFILE|grep $SCHEMAS|grep -v ^#|awk '{print $6}')
+        MAIL_RCV=$(cat $CFGFILE|grep $SCHEMAS|grep -v ^#|awk '{print $7}')
         
         print_msg "Start to Backup the $DB (under $ORACLE_HOME)"
         if [ ! -x $ORACLE_HOME/bin/$BKP_TYPE ] ;then
