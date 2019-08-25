@@ -184,7 +184,8 @@ if [ $STATUS  == "1" ]; then
         USR=$(cat $CFGFILE|grep ^$SID|grep -v ^#|awk '{print $3}')
         PASSWD=$(cat $CFGFILE|grep ^$SID|grep -v ^#|awk '{print $4}')
         DIR=$(cat $CFGFILE|grep ^$SID|grep -v ^#|awk '{print $5}')
-        MAIL_RCV=$(cat $CFGFILE|grep ^$SID|grep -v ^#|awk '{print $6}')
+        SCHEMAS=$(cat $CFGFILE|grep ^$SID|grep -v ^#|awk '{print $6}')
+        MAIL_RCV=$(cat $CFGFILE|grep ^$SID|grep -v ^#|awk '{print $7}')
         
         print_msg "Start to Backup the $DB (under $ORACLE_HOME)"
         if [ ! -x $ORACLE_HOME/bin/$BKP_TYPE ] ;then
@@ -196,8 +197,8 @@ if [ $STATUS  == "1" ]; then
                 DUMPFILE=$HOST.$SID.$(date '+%s').dmp
                 DUMPLOG=$HOST.$SID.$(date '+%s').log
                 STIME=$(date '+%D %T')
-                print_msg "Executing $ORACLE_HOME/bin/$BKP_TYPE $USR/***** directory=$DIR dumpfile=$DUMPFILE logfile=$DUMPLOG full=y"
-                $ORACLE_HOME/bin/$BKP_TYPE $USR/$PASSWD directory=$DIR dumpfile=$DUMPFILE logfile=$DUMPLOG full=y
+                print_msg "Executing $ORACLE_HOME/bin/$BKP_TYPE $USR/***** directory=$DIR dumpfile=$DUMPFILE schemas=$SCHEMAS logfile=$DUMPLOG full=y"
+                $ORACLE_HOME/bin/$BKP_TYPE $USR/$PASSWD directory=$DIR dumpfile=$DUMPFILE schemas=$SCHEMAS logfile=$DUMPLOG full=y
                 #ETIME=$(date '+%D %T')
                 if [ $? -ne 0 ]; then
                         print_msg "Error while executing $ORACLE_HOME/bin/$BKP_TYPE"
