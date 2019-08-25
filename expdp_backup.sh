@@ -50,8 +50,8 @@ function print_usage
         # Function to print script usage
         echo "Usage:"
         #echo "  $PROGRAM_NAME"
-        echo "  $PROGRAM_NAME -s <Oracle SID>"
-        echo "  $PROGRAM_NAME -s <Oracle SID> -f <Oracle Config File>"
+        echo "  $PROGRAM_NAME -s <Oracle SCHEMAS>"
+        echo "  $PROGRAM_NAME -s <Oracle SCHEMAS> -f <Oracle Config File>"
         echo "  $PROGRAM_NAME -v"
         echo "  $PROGRAM_NAME -h"
 }
@@ -71,7 +71,7 @@ function print_help
         echo ""
         echo "Oracle expdp backup cronjob for all platform Unix/Linux System"
         echo ""
-        echo " -s <Oracle SID>"
+        echo " -s <Oracle SCHEMAS>"
         echo ""
         echo " -f <Oracle Config File>"
         echo "  File includes SID ORACLE_HOME User Password Direcotory_name Mail_receiver "
@@ -146,7 +146,7 @@ while getopts f:s:hv next; do
                  CFGFILE=$OPTARG
                  ;;
                 s)
-                 SID=$OPTARG
+                 SCHEMAS=$OPTARG
                  ;;
                 h)
                  print_help
@@ -164,8 +164,8 @@ while getopts f:s:hv next; do
 done
 
 CFGFILE=$PROGRAM_PATH/${CFGFILE:-oradb.conf}
-if [ "$SID" == "" ]; then
-        print_msg "No SID provided"     
+if [ "$SCHEMAS" == "" ]; then
+        print_msg "No SCHEMAS provided"     
         print_usage
         exit
 fi
@@ -177,15 +177,17 @@ if [ ! -f $CFGFILE ]; then
         exit 
 fi
 
-STATUS=$(cat $CFGFILE |grep ^$SID |grep -v ^#|wc -l)
+#STATUS=$(cat $CFGFILE |grep ^$SID |grep -v ^#|wc -l)
+# check schemas instead of sid
+STATUS=$(cat $CFGFILE|grep ^$SCHEMAS|grep -v ^#|awk '{print $6}'|wc -l)
 if [ $STATUS  == "1" ]; then
-        SID=$(cat $CFGFILE|grep ^$SID|grep -v ^#|awk '{print $1}')
-        ORACLE_HOME=$(cat $CFGFILE|grep ^$SID|grep -v ^#|awk '{print $2}')
-        USR=$(cat $CFGFILE|grep ^$SID|grep -v ^#|awk '{print $3}')
-        PASSWD=$(cat $CFGFILE|grep ^$SID|grep -v ^#|awk '{print $4}')
-        DIR=$(cat $CFGFILE|grep ^$SID|grep -v ^#|awk '{print $5}')
-        SCHEMAS=$(cat $CFGFILE|grep ^$SID|grep -v ^#|awk '{print $6}')
-        MAIL_RCV=$(cat $CFGFILE|grep ^$SID|grep -v ^#|awk '{print $7}')
+        SID=$(cat $CFGFILE|grep ^$SCHEMAS|grep -v ^#|awk '{print $1}')
+        ORACLE_HOME=$(cat $CFGFILE|grep ^$SCHEMAS|grep -v ^#|awk '{print $2}')
+        USR=$(cat $CFGFILE|grep ^$SCHEMAS|grep -v ^#|awk '{print $3}')
+        PASSWD=$(cat $CFGFILE|grep ^$SCHEMAS|grep -v ^#|awk '{print $4}')
+        DIR=$(cat $CFGFILE|grep ^$SCHEMAS|grep -v ^#|awk '{print $5}')
+        SCHEMAS=$(cat $CFGFILE|grep ^$SCHEMAS|grep -v ^#|awk '{print $6}')
+        MAIL_RCV=$(cat $CFGFILE|grep ^$SCHEMAS|grep -v ^#|awk '{print $7}')
         
         print_msg "Start to Backup the $DB (under $ORACLE_HOME)"
         if [ ! -x $ORACLE_HOME/bin/$BKP_TYPE ] ;then
@@ -194,8 +196,8 @@ if [ $STATUS  == "1" ]; then
                 send_mail $MAILFILE $MAIL_SENDER "Error while running $PROGRAM_NAME" $PROGRAM_ADMIN_MAIL
         else
                 export ORACLE_SID=$SID
-                DUMPFILE=$HOST.$SID.$(date '+%s').dmp
-                DUMPLOG=$HOST.$SID.$(date '+%s').log
+                DUMPFILE=$HOST.$SCHEMAS-$(date '+%Y%m%d').dmp
+                DUMPLOG=$HOST.$SCHEMAS-$(date '+%Y%m%d').log
                 STIME=$(date '+%D %T')
                 print_msg "Executing $ORACLE_HOME/bin/$BKP_TYPE $USR/***** directory=$DIR dumpfile=$DUMPFILE schemas=$SCHEMAS logfile=$DUMPLOG full=y"
                 $ORACLE_HOME/bin/$BKP_TYPE $USR/$PASSWD directory=$DIR dumpfile=$DUMPFILE schemas=$SCHEMAS logfile=$DUMPLOG full=y
@@ -208,20 +210,20 @@ if [ $STATUS  == "1" ]; then
                 else
                         ETIME=$(date '+%D %T')
                         print_msg "End to execute $ORACLE_HOME/bin/$BKP_TYPE"
-                        print_msg "$(ls -l $BKPDIR/$HOST.$SID-$(date '+%s').dmp) "
-                        print_msg "Successfully backup $SID"
+                        print_msg "$(ls -l $BKPDIR/$HOST.$SCHEMAS-$(date '+%Y%m%d').dmp) "
+                        print_msg "Successfully backup $SCHEMAS"
                         echo "The below is last dump backup file (Time from $STIME to $ETIME) ..."  >$MAILFILE
-                        ls -l $BKPDIR/$HOST.$SID-`date +'%s'`.dmp >> $MAILFILE
+                        ls -l $BKPDIR/$HOST.$SCHEMAS-`date +'%Y%m%d'`.dmp >> $MAILFILE
                         echo "" >>$MAILFILE
                         #echo "All backup contents" >>$MAILFILE
                         #ls -l $BKPDIR/$SID/ >>$MAILFILE
-                        send_mail $MAILFILE $MAIL_SENDER "$SID PGDB backup($BKP_TYPE) finished" $MAIL_RCV
+                        send_mail $MAILFILE $MAIL_SENDER "$SID $SCHEMAS PGDB backup($BKP_TYPE) finished" $MAIL_RCV
                 fi              
         fi
 else
         print_msg "Wrong Oracle DB Configure file"
-        echo "No configuration for $SID" >$MAILFILE
-        cat $CFGFILE |grep $SID |grep -v ^# >>$MAILFILE
+        echo "No configuration for $SCHEMAS" >$MAILFILE
+        cat $CFGFILE |grep $SCHEMAS |grep -v ^# >>$MAILFILE
         send_mail $MAILFILE $MAIL_SENDER "Error while running $PROGRAM_NAME" $PROGRAM_ADMIN_MAIL
 fi
 
